@@ -14,6 +14,13 @@ class Settings(BaseSettings):
     # 新增配置项，用于控制是否模拟微信API
     MOCK_WECHAT_API: bool = False # 在 .env 中设置为 True 来启用模拟
 
+    # 活动报名时间 (本地时间，例如北京时间)
+    EVENT_SIGNUP_START_HOUR_LOCAL: int = 6 # 19点 (7 PM)
+    EVENT_SIGNUP_END_HOUR_LOCAL: int = 20   # 20点 (8 PM)
+    # 服务器运行时区 (用于将本地时间转换为UTC或进行比较)
+    # 如果云托管服务器是 UTC，但逻辑时间是北京时间，则需要这个
+    LOCAL_TIMEZONE: str = "Asia/Shanghai" # IANA Time Zone Name
+
     class Config:
         env_file = "config.env" # 从 config.env 文件加载配置
 

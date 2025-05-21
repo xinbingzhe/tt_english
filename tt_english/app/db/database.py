@@ -9,7 +9,7 @@ def create_db_and_tables():
     # 在应用启动时可以调用此函数创建表 (对于开发环境)
     #TODO 对于生产环境，通常使用 Alembic 进行数据库迁移管理
     from sqlmodel import SQLModel
-    from app.db.models import user_model
+    from app.db.models import user_model, event_signup_model
 
     SQLModel.metadata.create_all(engine)
 
