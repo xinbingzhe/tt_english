@@ -1,0 +1,17 @@
+[project]
+name = "tt-english"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi[standard]>=0.115.12",
+    "httpx>=0.28.1",
+    "mysql-connector-python>=9.3.0",
+    "passlib[bcrypt]>=1.7.4",
+    "pydantic-settings>=2.9.1",
+    "python-jose[cryptography]>=3.4.0",
+    "pytz>=2025.2",
+    "sqlmodel>=0.0.24",
+    "uvicorn>=0.34.2",
+]
