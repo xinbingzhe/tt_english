@@ -1,5 +1,6 @@
 from pydantic_settings import BaseSettings
 from functools import lru_cache
+from typing import Optional
 
 class Settings(BaseSettings):
     APP_NAME: str = "tt_english"
@@ -21,6 +22,7 @@ class Settings(BaseSettings):
     # 如果云托管服务器是 UTC，但逻辑时间是北京时间，则需要这个
     LOCAL_TIMEZONE: str = "Asia/Shanghai" # IANA Time Zone Name
 
+    INTERNAL_TRIGGER_TOKEN: Optional[str] = "a-very-secret-internal-token" # 用于保护触发器端点
     class Config:
         env_file = "config.env" # 从 config.env 文件加载配置
 

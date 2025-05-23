@@ -10,7 +10,8 @@ def create_db_and_tables():
     #TODO 对于生产环境，通常使用 Alembic 进行数据库迁移管理
     from sqlmodel import SQLModel
     from app.db.models import user_model, event_signup_model
-
+    from app.db.models import chat_room_model
+    from app.db.models import chat_room_participant_model
     SQLModel.metadata.create_all(engine)
 
 def get_session():
