@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Body, Security
 from sqlmodel import Session
 
 from app.db.database import get_session
-from app.db.models.user_model import User, UserCreate, UserRead, UserUpdate, Token, LoginRequest
+from app.db.models.user_model import User, UserCreate, UserRead, UserUpdate, Token, LoginRequest, OrigianlInfo
 from app.crud import user_crud
 from app.core import security
 # from app.core.config import settings # settings 现在由 wechat_service 内部使用
@@ -78,6 +78,20 @@ async def update_user_me(
     updated_user = user_crud.update_user(db=db, db_user=current_user, user_in_data=user_update_data.model_dump(exclude_unset=True))
     return UserRead.model_validate(updated_user)
 
+# 新用户填写英语水平和所在行业信息 仅仅调用一次
+@router.patch("/original", response_model=UserRead)
+async def get_original_user_info(
+    *,
+    db: Session = Depends(get_session),
+    oi: OrigianlInfo,
+    current_user: User = Depends(get_current_active_user)
+):
+    oi_data = oi.model_dump(exclude_unset=True)
+    current_user.sqlmodel_update(oi_data)
+    db.add(current_user)
+    db.commit()
+    db.refresh(current_user)
+    return current_user
 
 @router.get("/me", response_model=UserRead)
 async def read_users_me(current_user: User = Depends(get_current_active_user)):

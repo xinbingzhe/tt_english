@@ -17,10 +17,10 @@ from app.utils import time_utils # 用于获取当前本地日期
 router = APIRouter()
 
 # 简单的内部调用认证 (示例)
-INTERNAL_AUTH_TOKEN = settings.JWT_SECRET_KEY # 复用一个密钥作为示例，生产环境应使用独立密钥
+INTERNAL_TRIGGER_TOKEN = settings.INTERNAL_TRIGGER_TOKEN # 复用一个密钥作为示例，生产环境应使用独立密钥
 
-def verify_internal_token(x_internal_auth_token: Optional[str] = Header(None)):
-    if not x_internal_auth_token or x_internal_auth_token != INTERNAL_AUTH_TOKEN:
+def verify_internal_token(x_internal_trigger_token: Optional[str] = Header(None)):
+    if not x_internal_trigger_token or x_internal_trigger_token != INTERNAL_TRIGGER_TOKEN:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized for internal action")
     return True
 

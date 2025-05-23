@@ -59,7 +59,7 @@ def delete_matches_for_date(db: Session, event_date: date) -> int:
     if not room_ids_result:
         return 0
     
-    room_ids = [r_id for r_id, in room_ids_result] # 解包元组
+    room_ids = [r_id for r_id in room_ids_result] # 解包元组
 
     # 删除参与者
     delete_participants_stmt = ChatRoomParticipant.__table__.delete().where(ChatRoomParticipant.room_id.in_(room_ids))

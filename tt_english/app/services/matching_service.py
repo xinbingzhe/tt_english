@@ -16,7 +16,7 @@ class MatchingService:
         signed_up_users = event_signup_crud.get_all_active_users_signed_up_for_date(
             self.db, event_date=event_date
         )
-        eligible_users = [user for user in signed_up_users if user.english_level is not None]
+        eligible_users = [user for user in signed_up_users if user.eng_level is not None]
         random.shuffle(eligible_users) # 初始打乱，增加一些随机性
         return eligible_users
 
@@ -35,8 +35,8 @@ class MatchingService:
             return 0
 
         # 1. 按英语水平排序 (值越小水平越初级，便于寻找相近水平)
-        users_to_match.sort(key=lambda u: u.english_level)
-        print(f"{event_date}: 参与匹配用户数 {len(users_to_match)}, 水平排序后: {[ (u.id, u.english_level) for u in users_to_match]}")
+        users_to_match.sort(key=lambda u: u.eng_level)
+        print(f"{event_date}: 参与匹配用户数 {len(users_to_match)}, 水平排序后: {[ (u.id, u.eng_level) for u in users_to_match]}")
 
         created_rooms_count = 0
         # 用于存储已创建的二人房间及其代表性英语水平 (例如房间内两人的平均水平，或其中一人的水平)
@@ -65,7 +65,7 @@ class MatchingService:
             # 在 user1 后面的用户中寻找最佳匹配 (在设定的差异阈值内)
             # 查找范围可以限定，比如 user1 后面的 k 个用户
             # 为了简化，我们先考虑直接取下一个 (i+1)，如果差异在阈值内
-            if abs(user1.english_level - participants_buffer[i+1].english_level) <= MAX_LEVEL_DIFFERENCE:
+            if abs(user1.eng_level - participants_buffer[i+1].eng_level) <= MAX_LEVEL_DIFFERENCE:
                 best_match_user2 = participants_buffer[i+1]
                 best_match_idx = i + 1
             
@@ -80,10 +80,10 @@ class MatchingService:
                 # 创建二人聊天室
                 new_room = match_crud.create_chat_room(self.db, event_date=event_date, room_type="2-person")
                 created_rooms_count += 1
-                avg_level = (user1.english_level + best_match_user2.english_level) / 2.0
+                avg_level = (user1.eng_level + best_match_user2.eng_level) / 2.0
                 two_person_rooms_created.append((new_room, avg_level))
 
-                print(f"创建二人房间: {new_room.room_identifier}, 用户: [({user1.id},{user1.english_level}), ({best_match_user2.id},{best_match_user2.english_level})], 平均水平: {avg_level}")
+                print(f"创建二人房间: {new_room.room_identifier}, 用户: [({user1.id},{user1.eng_level}), ({best_match_user2.id},{best_match_user2.eng_level})], 平均水平: {avg_level}")
                 for p_user in room_participants:
                     match_crud.add_participant_to_room(self.db, room_id=new_room.id, user_id=p_user.id)
                 
@@ -97,7 +97,7 @@ class MatchingService:
         # 3. 处理剩余的用户 (此时 participants_buffer 中剩下的都是无法两两配对的)
         if len(participants_buffer) == 1 and two_person_rooms_created:
             lone_user = participants_buffer[0]
-            print(f"处理落单用户: ({lone_user.id}, {lone_user.english_level})")
+            print(f"处理落单用户: ({lone_user.id}, {lone_user.eng_level})")
 
             # 为这个落单用户寻找一个最合适的二人房间加入
             best_room_to_join: Optional[ChatRoom] = None
@@ -107,13 +107,13 @@ class MatchingService:
                 # 计算落单用户与该房间代表水平的差异
                 # 同时，我们也应该考虑落单用户与房间内已有成员的个体差异，确保不会太离谱
                 # 这里简化为与房间平均水平的差异
-                diff = abs(lone_user.english_level - room_avg_level)
+                diff = abs(lone_user.eng_level - room_avg_level)
                 
                 # 检查与房间内每个成员的差异是否也在可接受范围内 (可选，更严格)
                 # room_original_participants = match_crud.get_participants_for_room(self.db, room.id)
                 # individual_diffs_ok = True
                 # for p in room_original_participants:
-                #     if abs(lone_user.english_level - p.english_level) > MAX_LEVEL_DIFFERENCE + 1: # 可以用更宽松的阈值
+                #     if abs(lone_user.eng_level - p.eng_level) > MAX_LEVEL_DIFFERENCE + 1: # 可以用更宽松的阈值
                 #         individual_diffs_ok = False
                 #         break
                 # if not individual_diffs_ok:
@@ -140,7 +140,7 @@ class MatchingService:
                 print(f"落单用户 {lone_user.id} 未能找到合适的二人房间加入 (可能所有房间水平差异过大)。该用户轮空。")
 
         elif participants_buffer: # 如果还剩下超过1个用户，说明之前的两两配对逻辑有缺陷，或者人数太少
-            print(f"匹配结束后仍有多个用户未处理: {[ (u.id, u.english_level) for u in participants_buffer]} (可能轮空)")
+            print(f"匹配结束后仍有多个用户未处理: {[ (u.id, u.eng_level) for u in participants_buffer]} (可能轮空)")
         
         if not participants_buffer:
             print("所有用户均已成功匹配或处理。")

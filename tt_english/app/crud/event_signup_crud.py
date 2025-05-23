@@ -2,6 +2,7 @@
 from datetime import date, datetime
 from typing import List, Optional
 from sqlmodel import Session, select
+from app.utils.time_utils import get_current_time_in_local_tz
 
 from app.db.models.event_signup_model import EventSignup, EventSignupCreate
 from app.db.models.user_model import User # 用于类型提示
@@ -16,10 +17,14 @@ def create_event_signup(db: Session, user: User, event_date: date) -> EventSignu
         # 或者在这里进行更严格的控制
         pass
 
+    # 获取时间
+    # beijing_tz = zoneinfo.ZoneInfo(settings.LOCAL_TIMEZONE)
+    # beijing_time = datetime.datetime.now(beijing_tz)
+    print(f"报名时间：{get_current_time_in_local_tz().strftime('%Y-%m-%d %H:%M:%S')}")
     db_signup = EventSignup(
         user_id=user.id,
         event_date=event_date,
-        signup_time=datetime.utcnow() # 确保使用UTC时间存储
+        signup_time=get_current_time_in_local_tz().strftime('%Y-%m-%d %H:%M:%S')
         # english_level_at_signup=user.english_level # 如果需要快照
     )
     db.add(db_signup)

@@ -37,3 +37,7 @@ class LoginRequest(SQLModel):
     nickname: Optional[str] = None
     avatar_url: Optional[str] = None
 
+# 新用户需要输入的英语水平和所在行业信息
+class OrigianlInfo(SQLModel):
+    eng_level: int
+    industry: str
